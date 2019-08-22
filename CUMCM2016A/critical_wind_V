@@ -1,0 +1,28 @@
+function f = critical_wind_V(x)
+p_water = 1025; p_iron = 7900;g = 9.8; H = 18;
+m_buoy = 1000; r_buoy = 1; h_buoy = 2;
+m_barrel = 100; r_barrel = 0.15; h_barrel = 1;
+w_barrel = m_barrel*g - p_water*g*pi*r_barrel^2*h_barrel;
+m_tube = 10; L_tube = 1; r_tube = 0.025;
+w_tube = m_tube*g - p_water*g*m_tube/p_iron;
+L_chain = 22.05; m_per_chain = 7;
+w0 = (L_chain*m_per_chain*g - p_water*g*L_chain*m_per_chain/p_iron)/L_chain;
+m_ball = 1200;
+w_ball = m_ball*g-p_water*g*m_ball/p_iron;
+F_buoyancy = m_buoy*g + 4*w_tube + w_barrel + w_ball + L_chain*w0;
+h_depth = F_buoyancy/(p_water*g*pi*r_buoy^2);
+F_wind = 0.625*2*r_buoy*(h_buoy-h_depth)*x(1)^2;
+a1 = F_wind/w0;
+f(1) = a1*sinh(x(2)/a1)-a1*sinh(0)-22.05;
+f(2) = a1*cosh(x(2)/a1)-a1-x(3);
+a2 = F_wind/w_barrel;
+degree_barrel = atan((L_chain*w0+w_ball)/F_wind);
+f(3) = a2*sinh((x(4)-x(2))/a2+log((1+sin(degree_barrel))/cos(degree_barrel)))-a2*sinh(log((1+sin(degree_barrel))/cos(degree_barrel)))-1;
+f(4) = a2*cosh((x(4)-x(2))/a2+log((1+sin(degree_barrel))/cos(degree_barrel)))+x(3)-a2/cos(degree_barrel)-x(5);
+a3 = F_wind/w_tube;
+degree_tube = atan((L_chain*w0+w_ball+w_barrel)/F_wind);
+f(5) = a3*sinh((x(6)-x(4))/a3+log((1+sin(degree_tube))/cos(degree_tube)))-a3*sinh(log((1+sin(degree_tube))/cos(degree_tube)))-4;
+f(6) = a3*cosh((x(6)-x(4))/a3+log((1+sin(degree_tube))/cos(degree_tube)))+x(5)-a3/cos(degree_tube)-x(7);
+f(7) = x(7) + h_depth - H;
+end
+
